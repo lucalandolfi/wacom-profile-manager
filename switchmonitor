@@ -8,12 +8,15 @@ DATA_DIR="$HOME/.local/share/wacom-profile-manager"
 # State file, save the last set profile
 STATE="${DATA_DIR}/current_output"
 
+# Devices definition
+DEVICES="${DATA_DIR}/devices"
+
 if [[ ! -d "${DATA_DIR}" ]]; then
     mkdir -p "${DATA_DIR}"
 fi
 
-# Load device names
-source "${DATA_DIR}/devices.sh"
+# Load device definition
+source "$DEVICES"
 
 # Detect active monitors
 declare -a OUTPUTS
@@ -49,7 +52,6 @@ current_output () {
 }
 
 set_output () {
-    STYLUS='HUION Huion Tablet_HS611 stylus'
     xsetwacom set "$STYLUS" MapToOutput "$1"
     echo "Map to: $1"
     echo "$1" > "$STATE"

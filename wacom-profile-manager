@@ -28,7 +28,7 @@ if [[ ! -d "$PROFILES_DIR" ]]; then
     mkdir "$PROFILES_DIR"
 fi
 
-# Load devices
+# Load devices definition
 source "$DEVICES"
 
 # Load profiles
