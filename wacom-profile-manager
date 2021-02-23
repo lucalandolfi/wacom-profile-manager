@@ -1,0 +1,133 @@
+#!/bin/bash
+
+# Wacom Profile Manager
+# v. 0.01
+
+# Script data
+DATA_DIR="$HOME/.local/share/wacom-profile-manager"
+
+# State file, save the last set profile
+STATE="${DATA_DIR}/current_profile"
+
+# Profiles location
+PROFILES_FILE="${DATA_DIR}/profiles.sh"
+
+# Notifications title
+TITLE='Wacom Profile Manager'
+
+if [[ ! -d "${DATA_DIR}" ]]; then
+    mkdir -p "${DATA_DIR}"
+fi
+
+if [[ ! -e "$PROFILES_FILE" ]]; then
+    touch "$PROFILES_FILE"
+fi
+
+# Load profiles
+declare -A PROFILES
+source "$PROFILES_FILE"
+
+die () {
+    echo "$1" 1>&2
+    exit 1
+}
+
+usage () {
+    echo "Usage: `basename $0` [command [profile]]"
+    echo "Commands:"
+    echo " profile profile_name  - set the profile profile_name"
+    echo " next                  - cycle throught available profiles"
+    echo " current               - print active profile"
+    echo " help                  - print help"
+    echo ""
+    echo "Profiles:"
+    current=`current_profile`
+    for p in ${!PROFILES[@]}; do
+        echo -n "    "
+        [[ "$p" == "$current" ]] && echo -n "* "
+        echo "$p"
+    done
+}
+
+set_profile () {
+    ${PROFILES["$1"]}
+    # Save into state file
+    echo "$1" > $STATE
+    echo "Active profile: $1"
+    notify-send -t 2000 "$TITLE" "Active profile: $1"
+}
+
+# Read current profile from state file
+current_profile () {
+    local current
+
+    # state file does not exist
+    if [[ ! -e $STATE ]]; then
+        current=''
+    else
+        current=`cat $STATE`
+        # state file does not contain a valid profile name
+        if [[ ! -v PROFILES["$current"] ]]; then
+            current=''
+            rm -f $STATE
+        fi
+    fi
+    echo "$current"
+}
+
+# Iterate through all profiles, starting with the current profile
+iterate_profiles () {
+    keys=(${!PROFILES[@]})
+    len=${#keys[@]}
+
+    current=`current_profile`
+    # If current profile cannot be determined, start from the
+    # first, with respect to keys hash ordering (which is different
+    # from the installation order)
+    if [[ -z "$current" ]]; then
+        p=${keys[0]}
+    else
+        # find next valid profile
+        switch=0
+        i=0
+        while :
+        do
+            if [[ $switch -eq 1 ]]; then
+                p="${keys[$i]}"
+                break
+            fi
+            if [[ ${keys[$i]} == "$current" ]]; then
+                switch=1
+            fi
+            let "i=(i+1)%$len"
+        done
+    fi
+    set_profile "$p"
+}
+
+# Arguments parsing
+COMMAND="$1"
+case "$COMMAND" in
+    profile)
+        PROFILE="$2"
+        if [[ -v PROFILES["$PROFILE"] ]]; then
+            set_profile "$PROFILE"
+        else
+            die "$PROFILE: invalid profile"
+        fi
+        ;;
+    next)
+        iterate_profiles
+        ;;
+    current)
+        current_profile
+        ;;
+    help)
+        usage
+        exit 0
+        ;;
+    *)
+        usage
+        exit 0
+        ;;
+esac
