@@ -1,16 +1,21 @@
 #!/bin/bash
 
 # Wacom Profile Manager
-# v. 0.01
+# v. 0.2
+
+#set -x
 
 # Script data
 DATA_DIR="$HOME/.local/share/wacom-profile-manager"
 
-# State file, save the last set profile
+# State file, holds the last used profile
 STATE="${DATA_DIR}/current_profile"
 
 # Profiles location
-PROFILES_FILE="${DATA_DIR}/profiles.sh"
+PROFILES_DIR="${DATA_DIR}/profiles.d"
+
+# Devices definition
+DEVICES="${DATA_DIR}/devices"
 
 # Notifications title
 TITLE='Wacom Profile Manager'
@@ -19,13 +24,27 @@ if [[ ! -d "${DATA_DIR}" ]]; then
     mkdir -p "${DATA_DIR}"
 fi
 
-if [[ ! -e "$PROFILES_FILE" ]]; then
-    touch "$PROFILES_FILE"
+if [[ ! -d "$PROFILES_DIR" ]]; then
+    mkdir "$PROFILES_DIR"
 fi
+
+# Load devices
+source "$DEVICES"
 
 # Load profiles
 declare -A PROFILES
-source "$PROFILES_FILE"
+for f in "${PROFILES_DIR}"/*; do
+    if [[ -f "$f" ]]; then
+        name=`basename $f`
+        body=`cat $f`
+        eval "profile_${name}(){ $body ; }"
+        PROFILES[$name]=profile_$name
+    fi
+done
+
+if [[ ${#PROFILES[@]} -eq 0 ]]; then
+    echo "WARNING: No profiles found. Install them in $PROFILES_DIR"
+fi
 
 die () {
     echo "$1" 1>&2
