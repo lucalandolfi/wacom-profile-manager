@@ -1,12 +1,17 @@
 # Wacom Profile Manager
 
-Wacom Profile Manager is a `bash` script which provides a way to manage multiple configurations for graphic tablets, such as Wacom devices. A configuration, or a profile, is a set of options and button mappings associated with a tablet. Different softwares may and would need different configurations, mostly different button mappings. This can be used to quickly switch between configurations for different softwares (e.g. Krita and GIMP).
+Wacom Profile Manager is a tool used for managing multiple configurations for graphic tablets, such as Wacom devices. A configuration, or a profile, is a set of options and button mappings associated with a tablet. Different softwares may and would need different configurations, mostly different button mappings. This can be used to quickly switch between configurations for different softwares (e.g. Krita and GIMP).
 
 Profiles are defined using `bash` code to invoke appropriate commands to configure tablets. A profile could execute anything, not just tablet-specific commands.
+
+
+`wacom-profile-manager`
+`switchmonitor`
 
 ## Install
 
 **Dependencies**
+* `bash`
 * `xsetwacom`
 * `libnotify`
 

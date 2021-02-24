@@ -3,8 +3,6 @@
 # Wacom Profile Manager
 # v. 0.2
 
-#set -x
-
 # Configuration files
 CONFIG_DIR="$HOME/.config/wacom-profile-manager"
 
@@ -30,10 +28,10 @@ fi
 
 # Load devices definition
 if [[ ! -e "$DEVICES" ]]; then
-    touch "$DEVICES"
     echo "WARNING: No devices defined in $DEVICES"
+else
+    source "$DEVICES"
 fi
-source "$DEVICES"
 
 # Load profiles
 declare -A PROFILES
