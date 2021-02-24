@@ -8,11 +8,11 @@
 # Configuration files
 CONFIG_DIR="$HOME/.config/wacom-profile-manager"
 
-# State file, holds the last used profile
-STATE="${CONFIG_DIR}/current_profile"
-
 # Profiles location
 PROFILES_DIR="${CONFIG_DIR}/profiles.d"
+
+# State file, holds the last used profile
+STATE="${CONFIG_DIR}/current_profile"
 
 # Devices definition
 DEVICES="${CONFIG_DIR}/devices"
@@ -29,6 +29,10 @@ if [[ ! -d "$PROFILES_DIR" ]]; then
 fi
 
 # Load devices definition
+if [[ ! -e "$DEVICES" ]]; then
+    touch "$DEVICES"
+    echo "WARNING: No devices defined in $DEVICES"
+fi
 source "$DEVICES"
 
 # Load profiles
@@ -43,7 +47,7 @@ for f in "${PROFILES_DIR}"/*; do
 done
 
 if [[ ${#PROFILES[@]} -eq 0 ]]; then
-    echo "WARNING: No profiles found. Install them in $PROFILES_DIR"
+    echo "WARNING: No profiles found in $PROFILES_DIR"
 fi
 
 die () {

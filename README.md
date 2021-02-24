@@ -4,24 +4,31 @@ Wacom Profile Manager is a `bash` script which provides a way to manage multiple
 
 Profiles are defined using `bash` code to invoke appropriate commands to configure tablets. A profile could execute anything, not just tablet-specific commands.
 
-Wacom Profile Manager uses `xsetwacom` to configure devices and `notify-send` to notify user.
+## Install
+
+**Dependencies**
+* `xsetwacom`
+* `libnotify`
 
 ## Configuration
 ### Devices definition
-Using the output of `xsetwacom list`, write the names of the devices exposed by your tablet in the `devices` file, which is located by default at `$HOME/.config/devices`.
+Using the output of `xsetwacom list`, write the names of the devices exposed by your tablet in the `devices` file, which is located by default at `$HOME/.config/devices`. For example:
 
 ```
 $ xsetwacom list
+HUION Huion Tablet_HS611 stylus 	id: 19	type: STYLUS    
+HUION Huion Tablet_HS611 Pad pad	id: 20	type: PAD       
+HUION Huion Tablet_HS611 Touch Strip pad	id: 21	type: PAD  
 ```
 
 The `devices` file will look like
 ```
-STYLUS=''
-PAD=''
-STRIP=``
+STYLUS='HUION Huion Tablet_HS611 Pen stylus'
+PAD='HUION Huion Tablet_HS611 Pad pad'
+STRIP='HUION Huion Tablet_HS611 Touch Strip pad'
 ```
 
-Variables with these names can then be used in a profile file, e.g. `$STYLUS`, `$PAD` and `$STRIP`.
+These variables can then be used in a profile file, e.g. `$STYLUS`, `$PAD` and `$STRIP`. Note that only `$STYLUS` variable is required to be defined (it's used by `swtichmonitor`).
 
 ### Add a new profile
 New profiles can be added inside the profiles directory, which by default is located at `$HOME/.config/wacom-profile-manager/profiles.d`. Create a new file for each profile. File names cannot contains whitespace. The file name will also be the profile name. The contents of a profile is a list of commands
@@ -29,6 +36,9 @@ New profiles can be added inside the profiles directory, which by default is loc
 xsetwacom set ...
 xsetwacom set ...
 ```
+
+### Examples
+The `examples` directory contains a `device` file and two profiles that are used along with a Huion HS611 tablet.
 
 ## Usage
 To print usage, available profiles and current profile (marked with a \*)
