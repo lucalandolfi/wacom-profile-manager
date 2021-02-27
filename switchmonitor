@@ -20,6 +20,19 @@ source "$DEVICES"
 declare -a OUTPUTS
 OUTPUTS=($(xrandr --listactivemonitors | tail -n +2 | cut -d' ' -f6))
 
+# Detect primary output
+PRIMARY_OUTPUT=$(xrandr | grep ' connected' | grep primary | cut -d' ' -f1)
+
+is_valid_output () {
+    # check validity of an output
+    for out in "${OUTPUTS[@]}"; do
+        if [[ "$out" == "$1" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 # Read current output from state file
 current_output () {
     local current
@@ -28,22 +41,14 @@ current_output () {
     if [[ ! -e $STATE ]]; then
         current=''
     else
-        # check validity of current state
         current=`cat $STATE`
-        found=0
-        for i in "${OUTPUTS[@]}"; do
-            if [[ "$i" == "$current" ]]; then
-                found=1
-                break
-            fi
-        done
-
         # saved output is not valid (either 
         # is not connected or garbage)
-        if [[ $found -eq 0 ]]; then
+        if ! is_valid_output $current; then
             current=''
             rm -f "$STATE"
         fi
+
     fi
 
     echo "$current"
@@ -82,4 +87,42 @@ iterate_outputs () {
     set_output "$p"
 }
 
-iterate_outputs
+usage () {
+    echo "Usage: `basename $0` [command [profile]]"
+    echo "Commands:"
+    echo " profile profile_name  - set the profile profile_name"
+    echo " next                  - cycle throught available profiles"
+    echo " current               - print active profile"
+    echo " help                  - print help"
+    echo ""
+}
+
+# Arguments parsing
+COMMAND="$1"
+case "$COMMAND" in
+    output)
+        OUTPUT="$2"
+        if is_valid_output "$OUTPUT"; then
+            set_profile "$OUTPUT"
+        else
+            die "$OUTPUT: invalid profile"
+        fi
+        ;;
+    primary)
+        set_output "$PRIMARY"
+        ;;
+    next)
+        iterate_outputs
+        ;;
+    current)
+        current_output
+        ;;
+    help)
+        usage
+        exit 0
+        ;;
+    *)
+        usage
+        exit 0
+        ;;
+esac
