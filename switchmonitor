@@ -18,10 +18,11 @@ source "$DEVICES"
 
 # Detect active monitors
 declare -a OUTPUTS
-OUTPUTS=($(xrandr --listactivemonitors | tail -n +2 | cut -d' ' -f6))
+XRANDR=`xrandr | grep ' connected'`
+OUTPUTS=(`echo "$XRANDR" | cut -d ' ' -f1`)
 
 # Detect primary output
-PRIMARY_OUTPUT=$(xrandr | grep ' connected' | grep primary | cut -d' ' -f1)
+PRIMARY_OUTPUT=`echo "$XRANDR" | grep primary | cut -d ' ' -f1`
 
 is_valid_output () {
     # check validity of an output
@@ -90,16 +91,20 @@ iterate_outputs () {
 usage () {
     echo "Usage: `basename $0` [command [profile]]"
     echo "Commands:"
-    echo " profile profile_name  - set the profile profile_name"
-    echo " next                  - cycle throught available profiles"
-    echo " current               - print active profile"
-    echo " help                  - print help"
+    echo " list          - list available outputs"
+    echo " output OUT    - map to output OUT"
+    echo " next          - cycle throught available outputs"
+    echo " current       - print active output"
+    echo " help          - print help"
     echo ""
 }
 
 # Arguments parsing
 COMMAND="$1"
 case "$COMMAND" in
+    list)
+        echo "${OUTPUTS[@]}"
+        ;;
     output)
         OUTPUT="$2"
         if is_valid_output "$OUTPUT"; then
