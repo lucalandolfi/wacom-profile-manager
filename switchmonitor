@@ -22,7 +22,12 @@ XRANDR=`xrandr | grep ' connected'`
 OUTPUTS=(`echo "$XRANDR" | cut -d ' ' -f1`)
 
 # Detect primary output
-PRIMARY_OUTPUT=`echo "$XRANDR" | grep primary | cut -d ' ' -f1`
+PRIMARY=`echo "$XRANDR" | grep primary | cut -d ' ' -f1`
+
+die () {
+    echo "$1" 1>&2
+    exit 1
+}
 
 is_valid_output () {
     # check validity of an output
@@ -93,6 +98,7 @@ usage () {
     echo "Commands:"
     echo " list          - list available outputs"
     echo " output OUT    - map to output OUT"
+    echo " primary       - map to primary output"
     echo " next          - cycle throught available outputs"
     echo " current       - print active output"
     echo " help          - print help"
