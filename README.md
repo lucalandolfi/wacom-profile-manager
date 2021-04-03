@@ -1,23 +1,32 @@
 # Wacom Profile Manager
 
-Wacom Profile Manager is a tool used for managing multiple configurations for graphic tablets, such as Wacom devices. A configuration, or a profile, is a set of options and button mappings associated with a tablet. Different softwares may and would need different configurations, mostly different button mappings. This can be used to quickly switch between configurations for different softwares (e.g. Krita and GIMP).
+Wacom Profile Manager is a tool for managing multiple profiles for graphic tablets which are compatible with Linux [Wacom driver](https://github.com/linuxwacom).
 
-Profiles are defined using `bash` code to invoke appropriate commands to configure tablets. A profile could execute anything, not just tablet-specific commands.
+A profile is a set of options and button mappings associated with a tablet. Different softwares may need different configurations, mostly different button mappings. This can be used to quickly switch between configurations for different softwares (e.g. Krita and GIMP). Profiles are a list of shell commands used to configure the tablet (e.g. `xsetwacom` commands).
 
+Wacom Profile Manager is composed of two scripts:
 
-`wacom-profile-manager`
-`switchmonitor`
+* `wacom-profile-manager` The main component. Change active profile.
+
+* `switchmonitor` Maps the active area of the tablet to a connected monitor.
+
+It's entirely written in `bash` and uses `libnotify` to show a notification on profile change. Tablet must be supported by the Linux Wacom Driver, such as Wacom or Huion devices.
 
 ## Install
 
-**Dependencies**
-* `bash`
-* `xsetwacom`
-* `libnotify`
+* Install dependencies	
+```
+sudo apt-get install bash libnotify xserver-xorg-input-wacom
+```
+
+* Copy the scripts to a directory in your `$PATH`, for example: 
+```
+sudo cp wacom-profile-manager switchprofile /usr/local/bin
+```
 
 ## Configuration
 ### Devices definition
-Using the output of `xsetwacom list`, write the names of the devices exposed by your tablet in the `devices` file, which is located by default at `$HOME/.config/devices`. For example:
+Using the output of `xsetwacom list`, write the names of the devices exposed by your tablet in the `devices` file, which is located by default at `$HOME/.config/wacom-profile-manager/devices`. For example
 
 ```
 $ xsetwacom list
@@ -33,7 +42,15 @@ PAD='HUION Huion Tablet_HS611 Pad pad'
 STRIP='HUION Huion Tablet_HS611 Touch Strip pad'
 ```
 
-These variables can then be used in a profile file, e.g. `$STYLUS`, `$PAD` and `$STRIP`. Note that only `$STYLUS` variable is required to be defined (it's used by `swtichmonitor`).
+These variables can then be used in a profile file, e.g. `$STYLUS`, `$PAD` and `$STRIP`
+```
+xsetwacom set "$STYLUS" 'MapToOutput' 'DP-2'
+xsetwacom set "$STRIP" 'AbsWheelUp' 'key ctrl -'
+xsetwacom set "$PAD" button  2 'key ctrl shift z'
+...
+```
+
+You can define other variables if your tablet exposes more devices. You can also name them in a different way. The only requirement is that `$STYLUS` is defined in the `devices` file because it's used by `swtichmonitor`.
 
 ### Add a new profile
 New profiles can be added inside the profiles directory, which by default is located at `$HOME/.config/wacom-profile-manager/profiles.d`. Create a new file for each profile. File names cannot contains whitespace. The file name will also be the profile name. The contents of a profile is a list of commands
@@ -43,10 +60,17 @@ xsetwacom set ...
 ```
 
 ### Examples
-The `examples` directory contains a `device` file and two profiles that are used along with a Huion HS611 tablet.
+The [examples](examples/) directory contains a `devices` file and two profiles that are used along with a Huion HS611 tablet. If you want to try them out
+```
+CONF=${HOME}/.config/wacom-profile-manager
+mkdir -p ${CONF}
+cp examples/devices ${CONF}
+cp -R examples/profiles.d ${CONF}
+```
 
 ## Usage
-To print usage, available profiles and current profile (marked with a \*)
+### wacom-profile-manager
+Print usage, available profiles and current profile (marked with a \*)
 ```
 $ wacom-profile-manager
 Usage: wacom-profile-manager [command [profile]]
@@ -61,19 +85,19 @@ Profiles:
     * Krita
 ```
 
-To switch to a particular profile
+Switch to a particular profile
 ```
 $ wacom-profile-manager profile Xournal++
 Active profile: Xournal++
 ```
 
-To print active profile
+Print active profile
 ```
 $ wacom-profile-manager current
 Xournal++
 ```
 
-To cycle through all defined profiles
+Cycle through all defined profiles
 ```
 $ wacom-profile-manager next
 Active profile: Krita
@@ -81,4 +105,37 @@ $ wacom-profile-manager next
 Active profile: Xournal++
 $ wacom-profile-manager next
 Active profile: Krita
+```
+
+### switchmonitor
+List available monitors
+```
+$ switchmonitor list
+LVDS-1 DP-2
+```
+
+Print output tablet is currently mapped to
+```
+$ switchmonitor current
+DP-2
+```
+
+Map tablet to  `LVDS-1` (laptop internal monitor)
+```
+$ switchmonitor output LVDS-1
+Map to: LVDS-1
+```
+
+Map tablet to primary output
+```
+$ switchmonitor primary
+Map to: DP-2
+```
+
+Cycle through available outputs
+```
+$ switchmonitor next
+Map to: LVDS-1
+$ switchmonitor next
+Map to: DP-2
 ```
