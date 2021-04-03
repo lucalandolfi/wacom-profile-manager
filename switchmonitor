@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# switchmonitor
+
+# Change the monitor a graphic tablet is mapped to.
 
 # Script data
 CONFIG_DIR="$HOME/.config/wacom-profile-manager"
@@ -114,7 +118,7 @@ case "$COMMAND" in
     output)
         OUTPUT="$2"
         if is_valid_output "$OUTPUT"; then
-            set_profile "$OUTPUT"
+            set_output "$OUTPUT"
         else
             die "$OUTPUT: invalid profile"
         fi

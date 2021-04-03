@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Wacom Profile Manager
-# v. 0.2
+
+# Manage profiles for graphic tablets compatible with Wacom driver.
 
 # Configuration files
 CONFIG_DIR="$HOME/.config/wacom-profile-manager"
