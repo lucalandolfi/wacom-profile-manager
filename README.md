@@ -19,14 +19,16 @@ It's entirely written in `bash` and uses `libnotify` to show a notification on p
 sudo apt-get install bash libnotify xserver-xorg-input-wacom
 ```
 
-* Copy the scripts to a directory in your `$PATH`, for example: 
+* Copy the scripts to a directory in your `PATH`, for example: 
 ```
 sudo cp wacom-profile-manager switchprofile /usr/local/bin
 ```
 
 ## Configuration
 ### Devices definition
-Using the output of `xsetwacom list`, write the names of the devices exposed by your tablet in the `devices` file, which is located by default at `$HOME/.config/wacom-profile-manager/devices`. For example
+Using the output of `xsetwacom list`, write the names of the devices exposed by your tablet in the `devices` file, which is located by default at `$HOME/.config/wacom-profile-manager/devices`. 
+
+For example
 
 ```
 $ xsetwacom list
@@ -42,7 +44,7 @@ PAD='HUION Huion Tablet_HS611 Pad pad'
 STRIP='HUION Huion Tablet_HS611 Touch Strip pad'
 ```
 
-These variables can then be used in a profile file, e.g. `$STYLUS`, `$PAD` and `$STRIP`
+These variables can then be used in a profile file
 ```
 xsetwacom set "$STYLUS" 'MapToOutput' 'DP-2'
 xsetwacom set "$STRIP" 'AbsWheelUp' 'key ctrl -'
@@ -50,7 +52,7 @@ xsetwacom set "$PAD" button  2 'key ctrl shift z'
 ...
 ```
 
-You can define other variables if your tablet exposes more devices. You can also name them in a different way. The only requirement is that `$STYLUS` is defined in the `devices` file because it's used by `swtichmonitor`.
+You can define other variables if your tablet exposes more devices. You can also name them in a different way. The only requirement is that `STYLUS` is defined in the `devices` file because it's used by `swtichmonitor` to change the monitor the active area of the tablet is mapped to.
 
 ### Add a new profile
 New profiles can be added inside the profiles directory, which by default is located at `$HOME/.config/wacom-profile-manager/profiles.d`. Create a new file for each profile. File names cannot contains whitespace. The file name will also be the profile name. The contents of a profile is a list of commands
